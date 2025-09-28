@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Prism CSS for code syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>ChatBot App
+            </a>
+            <div class="navbar-nav ms-auto">
+                <% if (user) { %>
+                    <span class="navbar-text me-3">
+                        Welcome, <strong><%= user.username %></strong>!
+                    </span>
+                    <form action="/logout" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
+                    </form>
+                <% } else { %>
+                    <a class="btn btn-outline-light btn-sm" href="/login">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- Welcome Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4"><%= title %></h1>
+            <p class="lead"><%= message %></p>
+            <% if (!user) { %>
+                <div class="mt-3">
+                    <p>Please <a href="/login" class="btn btn-primary btn-sm">Login</a> or <a href="/register" class="btn btn-outline-primary btn-sm">Register</a> to access additional features.</p>
+                </div>
+            <% } else { %>
+                <div class="mt-3">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>You are logged in as <strong><%= user.username %></strong>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Tutorial/Wiki Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-book me-2"></i>Implementation Guide: Chatbot & User Authentication System
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">This guide explains how to implement a floating chatbot and secure user authentication system in a Node.js Express application.</p>
+
+                        <!-- Chatbot Implementation Section -->
+                        <section class="mb-5">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-robot me-2"></i>1. Floating Chatbot Implementation
+                            </h4>
+                            
+                            <h5>Frontend Components</h5>
+                            <p>The chatbot consists of three main parts:</p>
+                            <ul>
+                                <li><strong>Floating Button</strong> - Fixed position button that toggles the chat window</li>
+                                <li><strong>Chat Window</strong> - Modal-like interface for conversation</li>
+                                <li><strong>Message System</strong> - Displays user and bot messages with timestamps</li>
+                            </ul>
+
+                            <h6>HTML Structure (EJS Template):</h6>
+                            <pre><code class="language-html">&lt;!-- Floating Chatbot Button --&gt;
+&lt;button class="chatbot-btn" onclick="toggleChatbot()"&gt;
+    &lt;i class="fas fa-robot"&gt;&lt;/i&gt;
+&lt;/button&gt;
+
+&lt;!-- Chatbot Window --&gt;
+&lt;div class="chatbot-window" id="chatbotWindow"&gt;
+    &lt;div class="chatbot-header"&gt;
+        &lt;h6&gt;&lt;i class="fas fa-robot me-2"&gt;&lt;/i&gt;Chatbot Assistant&lt;/h6&gt;
+        &lt;button class="btn-close" onclick="toggleChatbot()"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="chatbot-body" id="chatbotBody"&gt;
+        &lt;!-- Messages appear here --&gt;
+    &lt;/div&gt;
+    &lt;div class="chatbot-footer"&gt;
+        &lt;input type="text" id="chatInput" placeholder="Type your message..."&gt;
+        &lt;button onclick="sendMessage()"&gt;Send&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+                            <h6>CSS Styling Key Features:</h6>
+                            <pre><code class="language-css">.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.chatbot-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.chatbot-window {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}</code></pre>
+
+                            <h6>JavaScript Functionality:</h6>
+                            <pre><code class="language-javascript">// Toggle chat window visibility
+function toggleChatbot() {
+    const chatbotWindow = document.getElementById('chatbotWindow');
+    chatbotWindow.classList.toggle('active');
+}
+
+// Send message to backend and display response
+async function sendMessage() {
+    const message = document.getElementById('chatInput').value;
+    
+    // Add user message to chat
+    addMessage(message, 'user');
+    
+    // Fetch bot response from server
+    const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+    });
+    
+    const data = await response.json();
+    addMessage(data.response, 'bot');
+}</code></pre>
+
+                            <h6>Backend Chatbot Logic:</h6>
+                            <pre><code class="language-javascript">const chatbotResponses = {
+    'hello': 'Hello! How can I help you today?',
+    'hi': 'Hi there! What can I do for you?',
+    // ... more responses
+    'default': 'I\'m not sure I understand...'
+};
+
+function getChatbotResponse(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    for (const [key, response] of Object.entries(chatbotResponses)) {
+        if (lowerMessage.includes(key)) {
+            return response;
+        }
+    }
+    return chatbotResponses.default;
+}
+
+app.post('/chat', (req, res) => {
+    const userMessage = req.body.message;
+    const botResponse = getChatbotResponse(userMessage);
+    res.json({ response: botResponse });
+});</code></pre>
+                        </section>
+
+                        <!-- User Authentication Section -->
+                        <section class="mb-5">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-user-shield me-2"></i>2. User Authentication System
+                            </h4>
+
+                            <h5>Database Setup</h5>
+                            <pre><code class="language-javascript">const db = new sqlite3.Database('users.db');
+db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`);</code></pre>
+
+                            <h5>User Registration with Password Hashing</h5>
+                            <pre><code class="language-javascript">app.post('/register', (req, res) => {
+    const { username, email, password, confirmPassword } = req.body;
+    
+    // Validation
+    if (password !== confirmPassword) {
+        return res.render('register', { error: 'Passwords do not match' });
+    }
+    
+    // Hash password with bcrypt
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) throw err;
+        
+        // Store user in database
+        db.run('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', 
+            [username, email, hashedPassword], 
+            function(err) {
+                if (err) {
+                    return res.render('register', { error: 'User already exists' });
+                }
+                res.redirect('/login');
+            }
+        );
+    });
+});</code></pre>
+
+                            <h5>User Login with Session Management</h5>
+                            <pre><code class="language-javascript">app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+        if (!user) {
+            return res.render('login', { error: 'Invalid credentials' });
+        }
+        
+        // Compare hashed password
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (err || !result) {
+                return res.render('login', { error: 'Invalid credentials' });
+            }
+            
+            // Create session
+            const sessionId = Math.random().toString(36).substring(2);
+            sessions.set(sessionId, user);
+            res.cookie('sessionId', sessionId, { httpOnly: true });
+            res.redirect('/');
+        });
+    });
+});</code></pre>
+
+                            <h5>Session Management Middleware</h5>
+                            <pre><code class="language-javascript">function requireAuth(req, res, next) {
+    const sessionId = req.headers.cookie?.split('sessionId=')[1]?.split(';')[0];
+    
+    if (sessionId && sessions.has(sessionId)) {
+        req.user = sessions.get(sessionId);
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}</code></pre>
+                        </section>
+
+                        <!-- Security Features Section -->
+                        <section class="mb-5">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-lock me-2"></i>3. Security Features Implemented
+                            </h4>
+                            <ul>
+                                <li><strong>Password Hashing:</strong> Uses bcrypt with salt rounds to securely store passwords</li>
+                                <li><strong>Session Management:</strong> Random session IDs with Map storage (use Redis in production)</li>
+                                <li><strong>Input Validation:</strong> Server-side validation for all user inputs</li>
+                                <li><strong>SQL Injection Protection:</strong> Parameterized queries prevent SQL injection</li>
+                                <li><strong>HTTP-only Cookies:</strong> Session cookies are not accessible via JavaScript</li>
+                                <li><strong>Password Confirmation:</strong> Client and server-side password matching</li>
+                            </ul>
+                        </section>
+
+                        <!-- Dependencies Section -->
+                        <section class="mb-5">
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-cube me-2"></i>4. Required Dependencies
+                            </h4>
+                            <pre><code class="language-json">{
+  "dependencies": {
+    "express": "^4.21.2",
+    "ejs": "^3.1.10",
+    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3"
+  }
+}</code></pre>
+                        </section>
+
+                        <!-- File Structure Section -->
+                        <section>
+                            <h4 class="text-primary mb-3">
+                                <i class="fas fa-folder me-2"></i>5. Project Structure
+                            </h4>
+                            <pre><code class="language-bash">project/
+├── app.js                 # Main server file
+├── package.json           # Dependencies and scripts
+├── views/
+│   ├── index.ejs         # Main page with tutorial
+│   ├── login.ejs         # Login form
+│   ├── register.ejs      # Registration form
+│   └── partials/
+│       └── chatbot.ejs   # Chatbot component
+└── public/
+    ├── css/
+    │   └── style.css     # Chatbot and UI styles
+    └── js/
+        └── chatbot.js    # Chatbot frontend logic</code></pre>
+                        </section>
+
+                        <!-- Conclusion -->
+                        <div class="alert alert-info mt-4">
+                            <h5><i class="fas fa-lightbulb me-2"></i>Implementation Tips</h5>
+                            <ul class="mb-0">
+                                <li>Use environment variables for database credentials in production</li>
+                                <li>Implement rate limiting for login attempts</li>
+                                <li>Add CSRF protection for forms</li>
+                                <li>Use a proper session store like Redis for production</li>
+                                <li>Implement proper error handling and logging</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Chatbot -->
+    <%- include('partials/chatbot') %>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
+    <script src="/js/chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "simple-express-ejs-app",
+  "version": "1.0.0",
+  "description": "Awesome Web Features",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  }
+}

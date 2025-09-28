@@ -1,0 +1,35 @@
+<!-- Floating Chatbot Button -->
+<div class="chatbot-container">
+    <!-- Chatbot Button -->
+    <button class="chatbot-btn" onclick="toggleChatbot()">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Window -->
+    <div class="chatbot-window" id="chatbotWindow">
+        <div class="chatbot-header">
+            <h6 class="mb-0"><i class="fas fa-robot me-2"></i>Chatbot Assistant</h6>
+            <button class="btn-close btn-close-white" onclick="toggleChatbot()"></button>
+        </div>
+        
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chat-message bot-message">
+                <div class="message-content">
+                    Hello! I'm your chatbot assistant. How can I help you today?
+                </div>
+                <div class="message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="chatbot-footer">
+            <div class="input-group">
+                <input type="text" class="form-control" id="chatInput" 
+                       placeholder="Type your message..." 
+                       onkeypress="handleKeyPress(event)">
+                <button class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
