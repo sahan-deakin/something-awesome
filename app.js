@@ -182,7 +182,7 @@ app.post('/register', (req, res) => {
       });
     }
     
-    if (existingUser) {login
+    if (existingUser) {
       return res.render('register', { 
         title: 'Register',
         user: null,
