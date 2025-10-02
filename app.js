@@ -76,8 +76,8 @@ app.get('/', (req, res) => {
   const user = sessionId ? sessions.get(sessionId) : null;
 
   res.render('index', { 
-    title: 'Hello World',
-    message: 'Welcome to Express with EJS!',
+    title: 'Something Awesome',
+    message: 'Welcome to My Project!',
     user: user
   });
 });
